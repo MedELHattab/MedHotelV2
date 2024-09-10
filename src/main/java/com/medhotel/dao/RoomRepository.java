@@ -9,5 +9,5 @@ public interface RoomRepository {
     Room getRoomById(int id);
     List<Room> getAllRooms();
     void updateRoom(Room room);
-    void deleteRoom(int id);
+    void deleteRoom(String id);
 }

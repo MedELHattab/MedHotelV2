@@ -136,11 +136,11 @@ public class RoomRepositoryImpl implements RoomRepository {
     }
 
     @Override
-    public void deleteRoom(int id) {
-        String sql = "DELETE FROM rooms WHERE room_id = ?";
+    public void deleteRoom(String room_number) {
+        String sql = "DELETE FROM rooms WHERE room_number = ?";  // Use room_number as String
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, id);
+            pstmt.setString(1, room_number);  // Set room_number as String
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

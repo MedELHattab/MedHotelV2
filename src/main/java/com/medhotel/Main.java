@@ -16,7 +16,8 @@ public class Main {
             System.out.println("\nMenu:");
             System.out.println("1. Add Room");
             System.out.println("2. View All Rooms");
-            System.out.println("3. Exit");
+            System.out.println("3. Delete Room");
+            System.out.println("4. Exit");
             System.out.print("Choose an option: ");
             int choice = scanner.nextInt();
 
@@ -49,8 +50,20 @@ public class Main {
 //                        System.out.println(room);
 //                    }
 //                    break;
-
                 case 3:
+                    System.out.print("Enter Room Number: ");
+                    String deletedRoomNumber = scanner.next();  // Get the room number as String
+
+                    try {
+                         // Convert to int
+                        roomService.deleteRoom(deletedRoomNumber);  // Use the integer version
+                        System.out.println("Room deleted successfully.");
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid room number format or room Number Not Found. Please enter a valid number.");
+                    }
+                    break;
+
+                case 4:
                     exit = true;
                     break;
 

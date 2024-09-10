@@ -43,8 +43,8 @@ public class RoomService {
     }
 
     // Delete room
-    public void deleteRoom(int roomId) {
-        roomRepository.deleteRoom(roomId);
+    public void deleteRoom(String roomNumber) {
+        roomRepository.deleteRoom(roomNumber);
     }
 
     // Get a room by its ID
