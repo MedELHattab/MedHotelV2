@@ -71,3 +71,10 @@ CREATE TABLE cancellation_policies (
     refund_percentage NUMERIC(3, 2) NOT NULL, -- e.g., 0.50 for 50% refund
     deadline_days_before_checkin INT NOT NULL -- Deadline in days before check-in
 );
+
+INSERT INTO room_types (type_name, description)
+VALUES
+('Single', 'A room assigned to one person.'),
+('Double', 'A room assigned to two people.');
+
+ALTER TABLE public.rooms ALTER COLUMN availability SET NOT NULL;

@@ -3,6 +3,8 @@ package com.medhotel;
 import com.medhotel.models.Room;
 import com.medhotel.models.RoomType;
 import com.medhotel.services.RoomService;
+
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -44,12 +46,13 @@ public class Main {
 
                 case 2:
                     // View all rooms
-//                    System.out.println("Room List:");
-//                    List<Room> rooms = roomService.getAllRooms();
-//                    for (Room room : rooms) {
-//                        System.out.println(room);
-//                    }
-//                    break;
+                    System.out.println("Room List:");
+                    List<Room> rooms = roomService.getAllRooms();
+                    for (Room room : rooms) {
+                        System.out.println(room);
+                    }
+                    break;
+
                 case 3:
                     System.out.print("Enter Room Number: ");
                     String deletedRoomNumber = scanner.next();  // Get the room number as String

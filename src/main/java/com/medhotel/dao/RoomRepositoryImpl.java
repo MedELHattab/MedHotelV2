@@ -55,7 +55,9 @@ public class RoomRepositoryImpl implements RoomRepository {
                 insertStmt.setString(1, room.getRoomNumber());
                 insertStmt.setInt(2, roomTypeId);  // Set the room_type_id
                 insertStmt.setDouble(3, room.getPricePerNight());
-                insertStmt.setBoolean(4, room.isAvailability());
+
+                // Step 3: Force availability to true
+                insertStmt.setBoolean(4, true);  // Always set availability to true
 
                 insertStmt.executeUpdate();
 
@@ -70,8 +72,6 @@ public class RoomRepositoryImpl implements RoomRepository {
             e.printStackTrace();
         }
     }
-
-
 
     @Override
     public Room getRoomById(int id) {
@@ -99,7 +99,10 @@ public class RoomRepositoryImpl implements RoomRepository {
     @Override
     public List<Room> getAllRooms() {
         List<Room> rooms = new ArrayList<>();
-        String sql = "SELECT * FROM rooms";
+        String sql = "SELECT r.room_id, r.room_number, rt.type_name AS room_type, r.price_per_night, r.availability " +
+                "FROM rooms r " +
+                "JOIN room_types rt ON r.room_type_id = rt.room_type_id";  // Join with room_types to get room_type
+
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -107,7 +110,7 @@ public class RoomRepositoryImpl implements RoomRepository {
                 Room room = new Room(
                         rs.getInt("room_id"),
                         rs.getString("room_number"),
-                        rs.getString("room_type"),
+                        rs.getString("room_type"),  // Get the type_name from room_types table
                         rs.getDouble("price_per_night"),
                         rs.getBoolean("availability")
                 );
@@ -118,6 +121,7 @@ public class RoomRepositoryImpl implements RoomRepository {
         }
         return rooms;
     }
+
 
     @Override
     public void updateRoom(Room room) {
