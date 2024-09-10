@@ -124,20 +124,44 @@ public class RoomRepositoryImpl implements RoomRepository {
 
 
     @Override
-    public void updateRoom(Room room) {
-        String sql = "UPDATE rooms SET room_number = ?, room_type = ?, price_per_night = ?, availability = ? WHERE room_id = ?";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, room.getRoomNumber());
-            pstmt.setString(2, room.getRoomType());
-            pstmt.setDouble(3, room.getPricePerNight());
-            pstmt.setBoolean(4, room.isAvailability());
-            pstmt.setInt(5, room.getRoomId());
-            pstmt.executeUpdate();
+    public void updateRoom(String roomNumber, Room room) {
+        String getRoomTypeIdSql = "SELECT room_type_id FROM room_types WHERE type_name ILIKE ?";
+        String updateRoomSql = "UPDATE rooms SET room_number = ?, room_type_id = ?, price_per_night = ?, availability = ? WHERE room_number = ?";
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+
+            // Step 1: Get room_type_id from room_types table
+            int roomTypeId = 0;
+            try (PreparedStatement getTypeStmt = conn.prepareStatement(getRoomTypeIdSql)) {
+                getTypeStmt.setString(1, room.getRoomType()); // e.g., 'Single', 'Double'
+                ResultSet rs = getTypeStmt.executeQuery();
+
+                if (rs.next()) {
+                    roomTypeId = rs.getInt("room_type_id");
+                } else {
+                    System.out.println("Room type not found.");
+                    return;  // Exit if room type is not found
+                }
+            }
+
+            // Step 2: Update room in rooms table using room_type_id
+            try (PreparedStatement pstmt = conn.prepareStatement(updateRoomSql)) {
+                pstmt.setString(1, room.getRoomNumber()); // New room number
+                pstmt.setInt(2, roomTypeId);              // Room type ID from lookup
+                pstmt.setDouble(3, room.getPricePerNight());// New price per night
+                pstmt.setBoolean(4, room.isAvailability()); // New availability
+
+                // This is where you need to set the old room number for the WHERE clause
+                pstmt.setString(5, roomNumber); // The original room number to identify the row
+
+                pstmt.executeUpdate();
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
 
     @Override
     public void deleteRoom(String room_number) {

@@ -38,8 +38,8 @@ public class RoomService {
     }
 
     // Update room
-    public void updateRoom(Room room) {
-        roomRepository.updateRoom(room);
+    public void updateRoom(String id ,Room room) {
+        roomRepository.updateRoom(id, room);
     }
 
     // Delete room

@@ -19,7 +19,8 @@ public class Main {
             System.out.println("1. Add Room");
             System.out.println("2. View All Rooms");
             System.out.println("3. Delete Room");
-            System.out.println("4. Exit");
+            System.out.println("4. Update Room");
+            System.out.println("5. Exit");
             System.out.print("Choose an option: ");
             int choice = scanner.nextInt();
 
@@ -67,6 +68,33 @@ public class Main {
                     break;
 
                 case 4:
+                    // Update Room Logic
+                    Room updatedRoom = new Room();
+                    System.out.print("Enter The Desired Room Number: ");
+                    String desiredRoomNumber = scanner.next();
+
+                    System.out.print("Enter The New Room Number: ");
+                    String updatedRoomNumber = scanner.next();
+                    updatedRoom.setRoomNumber(updatedRoomNumber);
+
+                    System.out.print("Enter The New Room Type (e.g., Single, Double): ");
+                    String updatedRoomTypeInput = scanner.next();
+                    updatedRoom.setRoomType(updatedRoomTypeInput); // Use the string here, e.g., 'Single', 'Double'
+
+                    System.out.print("Enter The New Room Price: ");
+                    double updatedPrice = scanner.nextDouble();
+                    updatedRoom.setPricePerNight(updatedPrice);
+
+                    System.out.print("Is the room available? (true/false): ");
+                    boolean updatedAvailability = scanner.nextBoolean();
+                    updatedRoom.setAvailability(updatedAvailability);
+
+                    roomService.updateRoom(desiredRoomNumber, updatedRoom); // Call the update function
+                    System.out.println("Room updated successfully.");
+                    break;
+
+
+                case 5:
                     exit = true;
                     break;
 

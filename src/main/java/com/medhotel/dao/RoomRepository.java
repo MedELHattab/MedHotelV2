@@ -8,6 +8,6 @@ public interface RoomRepository {
     void addRoom(Room room);
     Room getRoomById(int id);
     List<Room> getAllRooms();
-    void updateRoom(Room room);
+    void updateRoom(String id , Room room);
     void deleteRoom(String id);
 }
