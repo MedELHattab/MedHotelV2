@@ -29,25 +29,49 @@ public class RoomRepositoryImpl implements RoomRepository {
     }
 
     @Override
-    public void addRoom(Room room) {
-        String sql = "INSERT INTO rooms (room_number, room_type, price_per_night, availability) VALUES (?, ?, ?, ?)";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            pstmt.setString(1, room.getRoomNumber());
-            pstmt.setString(2, room.getRoomType());
-            pstmt.setDouble(3, room.getPricePerNight());
-            pstmt.setBoolean(4, room.isAvailability());
-            pstmt.executeUpdate();
 
-            // Get the generated room_id
-            ResultSet rs = pstmt.getGeneratedKeys();
-            if (rs.next()) {
-                room.setRoomId(rs.getInt(1));
+    public void addRoom(Room room) {
+        String getRoomTypeIdSql = "SELECT room_type_id FROM room_types WHERE type_name ILIKE ?";
+        String insertRoomSql = "INSERT INTO rooms (room_number, room_type_id, price_per_night, availability) VALUES (?, ?, ?, ?)";
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+
+            // Step 1: Get room_type_id from room_types table
+            int roomTypeId = 0;
+            try (PreparedStatement getTypeStmt = conn.prepareStatement(getRoomTypeIdSql)) {
+                getTypeStmt.setString(1, room.getRoomType()); // e.g., 'Single', 'Double'
+                ResultSet rs = getTypeStmt.executeQuery();
+
+                if (rs.next()) {
+                    roomTypeId = rs.getInt("room_type_id");
+                } else {
+                    System.out.println("Room type not found.");
+                    return;  // Exit if room type is not found
+                }
             }
+
+            // Step 2: Insert room into rooms table using roomTypeId
+            try (PreparedStatement insertStmt = conn.prepareStatement(insertRoomSql, Statement.RETURN_GENERATED_KEYS)) {
+                insertStmt.setString(1, room.getRoomNumber());
+                insertStmt.setInt(2, roomTypeId);  // Set the room_type_id
+                insertStmt.setDouble(3, room.getPricePerNight());
+                insertStmt.setBoolean(4, room.isAvailability());
+
+                insertStmt.executeUpdate();
+
+                // Get the generated room_id
+                ResultSet rsKeys = insertStmt.getGeneratedKeys();
+                if (rsKeys.next()) {
+                    room.setRoomId(rsKeys.getInt(1));
+                }
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
+
 
     @Override
     public Room getRoomById(int id) {
@@ -122,4 +146,6 @@ public class RoomRepositoryImpl implements RoomRepository {
             e.printStackTrace();
         }
     }
+
+
 }

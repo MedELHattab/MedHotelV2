@@ -26,30 +26,29 @@ public class Main {
                     Room newRoom = new Room();
 
                     System.out.print("Enter Room Number: ");
-                    String roomNumber = String.valueOf(scanner.nextInt());
+                    String roomNumber = scanner.next();
                     newRoom.setRoomNumber(roomNumber);
 
                     System.out.print("Enter Room Type (e.g., Single, Double): ");
                     String roomTypeInput = scanner.next().toUpperCase();
-                    RoomType roomType = RoomType.valueOf(roomTypeInput);
-                    newRoom.setRoomType(roomType.toString());
+                    newRoom.setRoomType(roomTypeInput); // Use the string here, e.g., 'Single', 'Double'
 
                     System.out.print("Enter Room Price: ");
                     double price = scanner.nextDouble();
                     newRoom.setPricePerNight(price);
 
-                    roomService.addRoom(newRoom);
+                    roomService.addRoom(newRoom); // This will handle the room_type_id lookup and insertion
                     System.out.println("Room added successfully.");
                     break;
 
                 case 2:
                     // View all rooms
-                    System.out.println("Room List:");
-                    List<Room> rooms = roomService.getAllRooms();
-                    for (Room room : rooms) {
-                        System.out.println(room);
-                    }
-                    break;
+//                    System.out.println("Room List:");
+//                    List<Room> rooms = roomService.getAllRooms();
+//                    for (Room room : rooms) {
+//                        System.out.println(room);
+//                    }
+//                    break;
 
                 case 3:
                     exit = true;
