@@ -78,3 +78,8 @@ VALUES
 ('Double', 'A room assigned to two people.');
 
 ALTER TABLE public.rooms ALTER COLUMN availability SET NOT NULL;
+
+
+
+ALTER TABLE reservations
+    DROP COLUMN reservation_status;

@@ -1,5 +1,6 @@
 package com.medhotel.dao;
 
+import com.medhotel.db.DatabaseConnection;
 import com.medhotel.models.Room;
 
 import java.sql.*;
@@ -7,34 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RoomRepositoryImpl implements RoomRepository {
-    private final String URL = "jdbc:postgresql://localhost:5432/postgres"; // Update as needed
-    private final String USER = "postgres"; // Your PostgreSQL username
-    private final String PASSWORD = "password"; // Your PostgreSQL password
-
-    public RoomRepositoryImpl() {
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
-            String createTableSQL = "CREATE TABLE IF NOT EXISTS rooms (" +
-                    "room_id SERIAL PRIMARY KEY," +
-                    "room_number VARCHAR(50)," +
-                    "room_type VARCHAR(50)," +
-                    "price_per_night DECIMAL," +
-                    "availability BOOLEAN" +
-                    ")";
-            try (Statement stmt = conn.createStatement()) {
-                stmt.execute(createTableSQL);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 
     @Override
-
     public void addRoom(Room room) {
         String getRoomTypeIdSql = "SELECT room_type_id FROM room_types WHERE type_name ILIKE ?";
         String insertRoomSql = "INSERT INTO rooms (room_number, room_type_id, price_per_night, availability) VALUES (?, ?, ?, ?)";
 
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        try (Connection conn = DatabaseConnection.getInstance().getConnection()) {
 
             // Step 1: Get room_type_id from room_types table
             int roomTypeId = 0;
@@ -56,15 +36,15 @@ public class RoomRepositoryImpl implements RoomRepository {
                 insertStmt.setInt(2, roomTypeId);  // Set the room_type_id
                 insertStmt.setDouble(3, room.getPricePerNight());
 
-                // Step 3: Force availability to true
                 insertStmt.setBoolean(4, true);  // Always set availability to true
 
                 insertStmt.executeUpdate();
 
                 // Get the generated room_id
-                ResultSet rsKeys = insertStmt.getGeneratedKeys();
-                if (rsKeys.next()) {
-                    room.setRoomId(rsKeys.getInt(1));
+                try (ResultSet rsKeys = insertStmt.getGeneratedKeys()) {
+                    if (rsKeys.next()) {
+                        room.setRoomId(rsKeys.getInt(1));
+                    }
                 }
             }
 
@@ -77,18 +57,19 @@ public class RoomRepositoryImpl implements RoomRepository {
     public Room getRoomById(int id) {
         Room room = null;
         String sql = "SELECT * FROM rooms WHERE room_id = ?";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, id);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                room = new Room(
-                        rs.getInt("room_id"),
-                        rs.getString("room_number"),
-                        rs.getString("room_type"),
-                        rs.getDouble("price_per_night"),
-                        rs.getBoolean("availability")
-                );
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    room = new Room(
+                            rs.getInt("room_id"),
+                            rs.getString("room_number"),
+                            rs.getString("room_type"),
+                            rs.getDouble("price_per_night"),
+                            rs.getBoolean("availability")
+                    );
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -103,7 +84,7 @@ public class RoomRepositoryImpl implements RoomRepository {
                 "FROM rooms r " +
                 "JOIN room_types rt ON r.room_type_id = rt.room_type_id";  // Join with room_types to get room_type
 
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
@@ -122,13 +103,12 @@ public class RoomRepositoryImpl implements RoomRepository {
         return rooms;
     }
 
-
     @Override
     public void updateRoom(String roomNumber, Room room) {
         String getRoomTypeIdSql = "SELECT room_type_id FROM room_types WHERE type_name ILIKE ?";
         String updateRoomSql = "UPDATE rooms SET room_number = ?, room_type_id = ?, price_per_night = ?, availability = ? WHERE room_number = ?";
 
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        try (Connection conn = DatabaseConnection.getInstance().getConnection()) {
 
             // Step 1: Get room_type_id from room_types table
             int roomTypeId = 0;
@@ -151,7 +131,7 @@ public class RoomRepositoryImpl implements RoomRepository {
                 pstmt.setDouble(3, room.getPricePerNight());// New price per night
                 pstmt.setBoolean(4, room.isAvailability()); // New availability
 
-                // This is where you need to set the old room number for the WHERE clause
+                // Set the original room number for the WHERE clause
                 pstmt.setString(5, roomNumber); // The original room number to identify the row
 
                 pstmt.executeUpdate();
@@ -162,18 +142,15 @@ public class RoomRepositoryImpl implements RoomRepository {
         }
     }
 
-
     @Override
-    public void deleteRoom(String room_number) {
+    public void deleteRoom(String roomNumber) {
         String sql = "DELETE FROM rooms WHERE room_number = ?";  // Use room_number as String
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, room_number);  // Set room_number as String
+            pstmt.setString(1, roomNumber);  // Set room_number as String
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-
-
 }
