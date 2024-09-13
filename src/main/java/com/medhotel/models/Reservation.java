@@ -10,6 +10,7 @@ public class Reservation {
     private LocalDate checkOutDate;
     private double totalPrice;
 
+    public Reservation() {}
     public Reservation(int reservationId, int customerId, int roomId, LocalDate checkInDate, LocalDate checkOutDate, double totalPrice) {
         this.reservationId = reservationId;
         this.customerId = customerId;

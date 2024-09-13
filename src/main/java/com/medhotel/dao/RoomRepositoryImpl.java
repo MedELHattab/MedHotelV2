@@ -36,7 +36,7 @@ public class RoomRepositoryImpl implements RoomRepository {
                 insertStmt.setInt(2, roomTypeId);  // Set the room_type_id
                 insertStmt.setDouble(3, room.getPricePerNight());
 
-                insertStmt.setBoolean(4, true);  // Always set availability to true
+                insertStmt.setBoolean(  4, true);  // Always set availability to true
 
                 insertStmt.executeUpdate();
 
