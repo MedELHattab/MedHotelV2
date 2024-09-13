@@ -44,8 +44,8 @@ public class ReservationService {
         reservationRepository.updateReservation(reservationId, reservation);
     }
 
-    public void deleteReservation(int reservationId) {
-        reservationRepository.deleteReservation(reservationId);
+    public void cancelReservation(int reservationId) {
+        reservationRepository.cancelReservation(reservationId);
     }
 }
 

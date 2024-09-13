@@ -32,7 +32,9 @@ public class Main {
             System.out.println("6. View All Customers");
             System.out.println("7. Add Reservation");
             System.out.println("8. View All Reservations");
-            System.out.println("9. Exit");
+            System.out.println("9. Update Reservation");
+            System.out.println("10. Cancel Reservation");
+            System.out.println("11. Exit");
             System.out.print("Choose an option: ");
             int choice = scanner.nextInt();
 
@@ -183,6 +185,18 @@ public class Main {
                     break;
 
                 case 9:
+
+
+
+
+                case 10:
+                    System.out.print("Enter The Reservation ID: ");
+                    int reservationID = scanner.nextInt();  // Use nextInt() instead of nextLine() to avoid empty string issues
+                    scanner.nextLine();  // Clear the buffer
+                    reservationService.cancelReservation(reservationID);
+                    System.out.println("Reservation Canceled successfully.");
+
+                case 11:
                     exit = true;
                     break;
 

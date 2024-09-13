@@ -9,6 +9,6 @@ public interface ReservationRepository {
     Reservation getReservationById(int id);
     List<Reservation> getAllReservations();
     void updateReservation(int reservationId, Reservation reservation);
-    void deleteReservation(int reservationId);
+    void cancelReservation(int reservationId);
 }
 

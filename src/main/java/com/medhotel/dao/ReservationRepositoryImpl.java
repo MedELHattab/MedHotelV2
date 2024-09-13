@@ -191,18 +191,53 @@ public class ReservationRepositoryImpl implements ReservationRepository {
     }
 
     @Override
-    public void deleteReservation(int reservationId) {
-        String sql = "DELETE FROM reservations WHERE reservation_id = ?";
+    public void cancelReservation(int reservationId) {
+        String reservationQuery = "SELECT customer_id, check_in_date, total_price FROM reservations WHERE reservation_id = ?";
+        String insertRefundQuery = "INSERT INTO refunds (reservation_id, customer_id, refund) VALUES (?, ?, ?)";
+        String deleteReservationQuery = "UPDATE reservations SET status = 'canceled' WHERE reservation_id = ?";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement reservationStmt = conn.prepareStatement(reservationQuery);
+             PreparedStatement refundStmt = conn.prepareStatement(insertRefundQuery);
+             PreparedStatement deleteStmt = conn.prepareStatement(deleteReservationQuery)) {
 
-            pstmt.setInt(1, reservationId);
-            pstmt.executeUpdate();
+            // Step 1: Fetch reservation details
+            reservationStmt.setInt(1, reservationId);
+            ResultSet rs = reservationStmt.executeQuery();
+
+            if (rs.next()) {
+                int customerId = rs.getInt("customer_id");
+                LocalDate checkInDate = rs.getDate("check_in_date").toLocalDate();
+                double totalPrice = rs.getDouble("total_price");
+
+                // Step 2: Calculate the refund
+                LocalDate currentDate = LocalDate.now();
+                double refundAmount = 0.0;
+
+                // Check if cancellation is 3 days before check-in date
+                if (currentDate.isBefore(checkInDate.minusDays(3))) {
+                    refundAmount = totalPrice * 0.5;  // 50% refund
+                }
+
+                // Step 3: Insert refund into the refunds table
+                refundStmt.setInt(1, reservationId);
+                refundStmt.setInt(2, customerId);
+                refundStmt.setDouble(3, refundAmount);
+                refundStmt.executeUpdate();
+
+                // Step 4: Delete the reservation
+                deleteStmt.setInt(1, reservationId);
+                deleteStmt.executeUpdate();
+
+                System.out.println("Reservation cancelled successfully. Refund: $" + refundAmount);
+            } else {
+                System.out.println("Reservation not found for ID: " + reservationId);
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
 }
 
