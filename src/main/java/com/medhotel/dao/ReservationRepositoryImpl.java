@@ -27,6 +27,11 @@ public class ReservationRepositoryImpl implements ReservationRepository {
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             // Step 1: Validate check-in and check-out dates
+            LocalDate today = LocalDate.now();
+            if (reservation.getCheckInDate().isBefore(today.plusDays(1))) {
+                throw new IllegalArgumentException("Check-in date must be at least 1 day after today's date.");
+            }
+
             if (reservation.getCheckInDate().isAfter(reservation.getCheckOutDate())) {
                 throw new IllegalArgumentException("Check-in date cannot be after check-out date.");
             }
@@ -106,6 +111,7 @@ public class ReservationRepositoryImpl implements ReservationRepository {
             e.printStackTrace();
         }
     }
+
 
 
 
